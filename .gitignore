@@ -1,4 +1,10 @@
 notMNIST_large
 notMNIST_small
 notMNIST_small.mat
-
+.idea
+.vscode
+.ipynb_checkpoints
+notMNIST_large.tar.gz
+notMNIST_small.tar.gz
+not_mnist_dataset.h5
+not_mnist_dataset1.h5
