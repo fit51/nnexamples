@@ -8,3 +8,4 @@ notMNIST_large.tar.gz
 notMNIST_small.tar.gz
 not_mnist_dataset.h5
 not_mnist_dataset1.h5
+notMNIST.pickle
