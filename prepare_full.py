@@ -16,9 +16,9 @@ import h5py
 %matplotlib inline
 
 #%%
-base_dir='/home/kodratyuk/PyProjects/gooNN'
-small_dir="notMNIST_small"
-big_dir="notMNIST_large"
+base_dir='/home/kodratyuk/PyProjects/gooNN/'
+small_dir=base_dir + "notMNIST_small"
+big_dir=base_dir + "notMNIST_large"
 image_size = 28
 dataset_size = 200000
 valid_size = 10000
@@ -26,7 +26,7 @@ train_size = 10000
 
 #%%
 number = 2132
-ldir = "notMNIST_small/A/"
+ldir = base_dir + "notMNIST_small/A/"
 images = os.listdir(ldir)
 image = misc.imread(ldir + images[number % len(images)], True)
 image = image / 255.0
@@ -46,7 +46,6 @@ def load_letter(folder, print_process=True):
     image_file = os.path.join(folder, image)
     try:
       image_data = misc.imread(image_file, True)
-      image_data = image_data / pixel_depth
       if image_data.shape != (image_size, image_size):
         raise Exception('Unexpected image shape: %s' % str(image_data.shape))
       dataset[num_images, : , :] = image_data
@@ -62,10 +61,33 @@ def load_letter(folder, print_process=True):
   return dataset
 
 start = time.time()
-a_examples = load_letter(big_dir + "\A")
+a_examples = load_letter(big_dir + "/A")
 end = time.time()
 print("Taken time: ", end - start)
 a_examples.shape
+
+def load_image(folder, print_process=True):
+  image_files = os.listdir(folder)
+  dataset = np.ndarray(shape=(len(image_files), image_size, image_size), dtype=np.float32)
+  print("Operating on: ", folder)
+  num_images = 0
+  for image in image_files:
+    image_file = os.path.join(folder, image)
+    try:
+      image_data = misc.imread(image_file, True)
+      if image_data.shape != (image_size, image_size):
+        raise Exception('Unexpected image shape: %s' % str(image_data.shape))
+      dataset[num_images, : , :] = image_data
+      num_images += 1
+      if num_images % 5000 == 0:
+        print(num_images, "loaded")
+    except IOError as e:
+      print('Could not read:', image_file, ':', e, '- it\'s ok, skipping.')
+  dataset = dataset[:num_images, :, :]
+  print(folder, "Done! ", "Loaded: ", dataset.shape[0])
+  print("Mean: ", np.mean(dataset))
+  print("STD: ", np.std(dataset))
+  return dataset
 
 #%%
 
@@ -78,15 +100,32 @@ def make_arrays(nb_rows, img_size):
     labels = None
   return dataset, labels
 
-def load_data(folder, dataset_size):
+def load_data(folder):
   labels = os.listdir(folder)
   num_classes = len(labels)
-  result_dataset, labels_dataset = make_arrays(dataset_size, image_size)
   current_class = 0
-  size_per_class = dataset_size // num_classes
   current_position = 0
+  current_size = 0
+  num_images = 0
+  label_images = []
   for label in labels:
+      path = os.path.join(folder, label)
+      label_image.append((label, path))
+  dataset_size = len(label_images)
+  result_dataset, labels_dataset = make_arrays(dataset_size, image_size)
+  for label_image in label_images:
+    try:
+      image_data = misc.imread(image_file, True)
+      if image_data.shape != (image_size, image_size):
+        raise Exception('Unexpected image shape: %s' % str(image_data.shape))
+      dataset[num_images, : , :] = image_data
+      num_images += 1
+      if num_images % 5000 == 0:
+        print(num_images, "loaded")
+    except IOError as e:
+      print('Could not read:', image_file, ':', e, '- it\'s ok, skipping.')
     dataset = load_letter(os.path.join(folder, label))
+    current_size = len(images)
     l_data = np.ndarray(len(dataset), dtype=np.float32)
     l_data.fill(current_class)
     end = current_position + size_per_class
