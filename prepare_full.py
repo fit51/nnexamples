@@ -66,29 +66,6 @@ end = time.time()
 print("Taken time: ", end - start)
 a_examples.shape
 
-def load_image(folder, print_process=True):
-  image_files = os.listdir(folder)
-  dataset = np.ndarray(shape=(len(image_files), image_size, image_size), dtype=np.float32)
-  print("Operating on: ", folder)
-  num_images = 0
-  for image in image_files:
-    image_file = os.path.join(folder, image)
-    try:
-      image_data = misc.imread(image_file, True)
-      if image_data.shape != (image_size, image_size):
-        raise Exception('Unexpected image shape: %s' % str(image_data.shape))
-      dataset[num_images, : , :] = image_data
-      num_images += 1
-      if num_images % 5000 == 0:
-        print(num_images, "loaded")
-    except IOError as e:
-      print('Could not read:', image_file, ':', e, '- it\'s ok, skipping.')
-  dataset = dataset[:num_images, :, :]
-  print(folder, "Done! ", "Loaded: ", dataset.shape[0])
-  print("Mean: ", np.mean(dataset))
-  print("STD: ", np.std(dataset))
-  return dataset
-
 #%%
 
 def make_arrays(nb_rows, img_size):
@@ -100,45 +77,44 @@ def make_arrays(nb_rows, img_size):
     labels = None
   return dataset, labels
 
+
 def load_data(folder):
   labels = os.listdir(folder)
   num_classes = len(labels)
   current_class = 0
   current_position = 0
   current_size = 0
-  num_images = 0
+  num_image = 0
   label_images = []
+  class_num = 0
   for label in labels:
       path = os.path.join(folder, label)
-      label_image.append((label, path))
+      for image in os.listdir(path):
+          path_image = os.path.join(path, image)
+          label_images.append((class_num, path_image))
+      class_num += 1
   dataset_size = len(label_images)
   result_dataset, labels_dataset = make_arrays(dataset_size, image_size)
   for label_image in label_images:
+    (label, image_file) = label_image 
     try:
       image_data = misc.imread(image_file, True)
       if image_data.shape != (image_size, image_size):
-        raise Exception('Unexpected image shape: %s' % str(image_data.shape))
-      dataset[num_images, : , :] = image_data
-      num_images += 1
-      if num_images % 5000 == 0:
-        print(num_images, "loaded")
+          raise Exception('Unexpected image shape: %s' %
+                          str(image_data.shape))
+      result_dataset[num_image, :, :] = image_data
+      labels_dataset[num_image] = label
+      num_image += 1
+      if num_image % 5000 == 0:
+          print(num_image, "loaded")
     except IOError as e:
-      print('Could not read:', image_file, ':', e, '- it\'s ok, skipping.')
-    dataset = load_letter(os.path.join(folder, label))
-    current_size = len(images)
-    l_data = np.ndarray(len(dataset), dtype=np.float32)
-    l_data.fill(current_class)
-    end = current_position + size_per_class
-    result_dataset[current_position : end] = dataset[:size_per_class]
-    labels_dataset[current_position : end] = l_data[:size_per_class]
-    current_position += size_per_class
-    current_class += 1
-  return  result_dataset, labels_dataset
+          print('Could not read:', image_file, ':', e, '- it\'s ok, skipping.')
+  return result_dataset, labels_dataset
 
-test_dataset, test_labels = load_data(small_dir, train_size)
+test_dataset, test_labels = load_data(small_dir)
 print(test_dataset.shape, test_labels.shape)
-trainValid_dataset, trainValid_labels = load_data(big_dir, dataset_size + valid_size)
-print(trainValid_dataset.shape, trainValid_labels.shape)
+train_dataset, train_labels = load_data(big_dir)
+print(train_dataset.shape, train_labels.shape)
 
 #%%
 def shuffle(dataset, label_dataset):

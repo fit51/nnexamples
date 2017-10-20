@@ -50,5 +50,17 @@ for i in range(1000):
 curr_W, curr_b, curr_loss = sess.run([W, b, loss], {x: x_train, y: y_train})
 print("W: %s b: %s loss: %s"%(curr_W, curr_b, curr_loss))
 
+
+#soft max
+#%%
+y = np.array([[1, 2, 3, 4],
+[2, 3, 4, 5],
+[3, 4, 5, 6]])
+#%%
+x = np.random.randn(3, 4)
+soft = tf.nn.softmax(x)
+sess.run(soft)
+
 #%%
 sess.close()
+"./notMNIST_large/".split('/')[1]
