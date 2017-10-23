@@ -9,3 +9,7 @@ notMNIST_small.tar.gz
 not_mnist_dataset.h5
 not_mnist_dataset1.h5
 notMNIST.pickle
+mnist_dir
+not_mnist_dir
+not_mnist_dataset_full_test.h5
+not_mnist_dataset_full_train.h5

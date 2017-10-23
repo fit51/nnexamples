@@ -117,6 +117,10 @@ train_dataset, train_labels = load_data(big_dir)
 print(train_dataset.shape, train_labels.shape)
 
 #%%
+print(test_dataset.shape, test_labels.shape)
+print(train_dataset.shape, train_labels.shape)
+
+#%%
 def shuffle(dataset, label_dataset):
   permutation = np.random.permutation(dataset.shape[0])
   dataset = dataset[permutation, :, :]
@@ -128,27 +132,27 @@ def split_dataset(dataset, label_dataset, valid_size):
   return dataset[:size - valid_size, :, :], label_dataset[:size - valid_size], dataset[size - valid_size: size, :, :], label_dataset[size - valid_size:size]
 
 shuffled_test_dataset, shuffled_test_labels = shuffle(test_dataset, test_labels)
-shuffled_trainValid_dataset, shuffled_trainValid_labels = shuffle(trainValid_dataset, trainValid_labels)
-shuffled_train_dataset, shuffled_train_labels, shuffled_valid_dataset, shuffled_valid_labels = split_dataset(shuffled_trainValid_dataset, shuffled_trainValid_labels, valid_size)
+shuffled_train_dataset, shuffled_train_labels = shuffle(train_dataset, train_labels)
 
 #%%
-number = 1
-plt.imshow(shuffled_valid_dataset[number])
-print(shuffled_valid_labels[number])
+print(shuffled_train_dataset.shape, shuffled_train_dataset.shape)
+
+#%%
+number = 4
+plt.imshow(shuffled_train_dataset[number])
+print(shuffled_validshuffled_train_dataset_labels[number])
 
 #%%
 #save to h5
-h5f = h5py.File('not_mnist_dataset_full.h5', 'w')
-h5f.create_dataset("train/dataset", data=shuffled_train_dataset)
-h5f.create_dataset("train/labels", data=shuffled_train_labels)
+h5f = h5py.File(base_dir + 'not_mnist_dataset_full_train.h5', 'w')
+h5f.create_dataset("dataset", data=shuffled_train_dataset)
+h5f.create_dataset("labels", data=shuffled_train_labels)
 print("Saved" + "train")
-h5f.create_dataset("valid/dataset", data=shuffled_valid_dataset)
-h5f.create_dataset("valid/labels", data=shuffled_valid_labels)
-print("Saved" + "valid")
-h5f.create_dataset("test/dataset", data=shuffled_test_dataset)
-h5f.create_dataset("test/labels", data=shuffled_test_labels)
+h5f_test = h5py.File(base_dir + 'not_mnist_dataset_full_test.h5', 'w')
+h5f_test.create_dataset("dataset", data=shuffled_test_dataset)
+h5f_test.create_dataset("labels", data=shuffled_test_labels)
 print("Saved" + "test")
-h5f.close()
+h5f_test.close()
 
 #%%
 # load dataset
@@ -156,23 +160,18 @@ h5f.close()
 def load_dataset(file):
   h5f = h5py.File(file, 'r')
   dataset = {
-    "train_set" : h5f["train/dataset"][:],
-    "train_labels" : h5f["train/labels"][:],
-    "valid_set" : h5f["valid/dataset"][:],
-    "valid_labels" : h5f["valid/labels"][:],
-    "test_set" : h5f["test/dataset"][:],
-    "test_labels" : h5f["test/labels"][:]
+    "dataset" : h5f["dataset"][:],
+    "labels" : h5f["labels"][:],
   }
   h5f.close()
   return dataset
 
-dataset = load_dataset("not_mnist_dataset1.h5")
-print(dataset["train_set"].shape)
-print(dataset["train_labels"].shape)
-print(dataset["valid_set"].shape)
-print(dataset["valid_labels"].shape)
-print(dataset["test_set"].shape)
-print(dataset["test_labels"].shape)
-number = 123434
-print(dataset["train_labels"][number])
-plt.imshow(dataset["train_set"][number])
+test_dataset = load_dataset(base_dir + 'not_mnist_dataset_full_test.h5')
+print(test_dataset["dataset"].shape)
+print(test_dataset["labels"].shape)
+train_dataset = load_dataset(base_dir + 'not_mnist_dataset_full_train.h5')
+print(train_dataset["dataset"].shape)
+print(train_dataset["labels"].shape)
+
+print(train_dataset["labels"][number])
+plt.imshow(train_dataset["dataset"][number])
